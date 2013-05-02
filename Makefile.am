@@ -4,10 +4,14 @@ endif
 if HAVE_LXPANEL
 LXPANEL_DIRS = lxpanel
 endif
+if HAVE_LXPANELX
+LXPANELX_DIRS = lxpanelx
+endif
 SUBDIRS =	\
 	multiload \
 	$(XFCE4_DIRS) \
 	$(LXPANEL_DIRS) \
+	$(LXPANELX_DIRS) \
 	po
 
 distclean-local:

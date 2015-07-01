@@ -121,30 +121,30 @@ AM_CONDITIONAL(HAVE_LXPANEL, test x$with_lxpanel = xyes)
 AC_SUBST(LXPANEL_CFLAGS)
 AC_SUBST(LXPANEL_LIBS)
 
-# lxpanelx
-AC_ARG_WITH([lxpanelx], AS_HELP_STRING([--with-lxpanelx], [Build plugin for lxpanelx]),
-            [], [with_lxpanelx=check])
-AS_IF([test "x$with_lxpanelx" != "xno"], [
-    pkg_modules="lxpanelx"
+# waterline
+AC_ARG_WITH([waterline], AS_HELP_STRING([--with-waterline], [Build plugin for waterline]),
+            [], [with_waterline=check])
+AS_IF([test "x$with_waterline" != "xno"], [
+    pkg_modules="waterline sde-utils-jansson-1.0"
     # libmenu-cache is implicitly required; we will fail if it's not present.
-    PKG_CHECK_MODULES(LXPANELX, [$pkg_modules],
+    PKG_CHECK_MODULES(WATERLINE, [$pkg_modules],
                       [
-                        AC_DEFINE([HAVE_LXPANELX], [1], [Support for lxpanelx])
-                        with_lxpanelx=yes
+                        AC_DEFINE([HAVE_WATERLINE], [1], [Support for waterline])
+                        with_waterline=yes
                       ],[
-                        if test "x$with_lxpanelx" != xcheck; then
+                        if test "x$with_waterline" != xcheck; then
                           AC_MSG_FAILURE(
-                           [--with-lxpanelx was given, but test failed])
+                           [--with-waterline was given, but test failed])
                         fi
-                        with_lxpanelx=no
+                        with_waterline=no
                       ])
 ])
-AM_CONDITIONAL(HAVE_LXPANELX, test x$with_lxpanelx = xyes)
-AC_SUBST(LXPANELX_CFLAGS)
-AC_SUBST(LXPANELX_LIBS)
+AM_CONDITIONAL(HAVE_WATERLINE, test x$with_waterline = xyes)
+AC_SUBST(WATERLINE_CFLAGS)
+AC_SUBST(WATERLINE_LIBS)
 
 
-if test x$with_xfce4 != xyes && test x$with_lxpanel != xyes && test x$with_lxpanelx != xyes; then
+if test x$with_xfce4 != xyes && test x$with_lxpanel != xyes && test x$with_waterline != xyes; then
     AC_MSG_FAILURE([No supported panels are installed and available.])
 fi
 
@@ -169,7 +169,7 @@ AC_CONFIG_FILES([
     xfce4/Makefile
     xfce4/multiload.desktop.in
     lxpanel/Makefile
-    lxpanelx/Makefile
+    waterline/Makefile
     po/Makefile.in
 ])
 AC_OUTPUT
@@ -177,10 +177,10 @@ AC_OUTPUT
 echo
 echo "Build Configuration:"
 echo
-echo "* xfce4-panel :    $with_xfce4"
+echo "* xfce4-panel ..... $with_xfce4"
 echo
-echo "* lxpanel :        $with_lxpanel"
+echo "* lxpanel ......... $with_lxpanel"
 echo
-echo "* lxpanelx :        $with_lxpanelx"
+echo "* waterline ....... $with_waterline"
 echo
-#echo "LXPANELX_CFLAGS $LXPANELX_CFLAGS"
+

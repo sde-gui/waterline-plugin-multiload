@@ -5,12 +5,12 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <glib/gi18n-lib.h>
+#include <sde-utils-jansson.h>
 
-#define PLUGIN_PRIV_TYPE MultiloadLxpanelPlugin
+#define PLUGIN_PRIV_TYPE MultiloadWaterlinePlugin
 
-#include <lxpanelx/plugin.h>
-#include <lxpanelx/misc.h>
-#include <lxpanelx/dbg.h>
+#include <waterline/plugin.h>
+#include <waterline/misc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,16 +20,17 @@
 #include "multiload/properties.h"
 
 /** BEGIN H **/
-typedef struct _MultiloadLxpanelPlugin MultiloadLxpanelPlugin;
+typedef struct _MultiloadWaterlinePlugin MultiloadWaterlinePlugin;
 
 /* an instance of this struct is what will be assigned to 'priv' */
-struct _MultiloadLxpanelPlugin
+struct _MultiloadWaterlinePlugin
 {
     MultiloadPlugin ma;
     GtkWidget *dlg;
 };
 /** END H **/
 
+#if 0
 static void
 multiload_read(char **fp, MultiloadPlugin *ma)
 {
@@ -92,7 +93,7 @@ multiload_read(char **fp, MultiloadPlugin *ma)
 
 static void multiload_save_configuration(Plugin * p, FILE * fp)
 {
-  MultiloadLxpanelPlugin *multiload = PRIV(p);
+  PLUGIN_PRIV_TYPE * multiload = PRIV(p);
   MultiloadPlugin *ma = &multiload->ma;
   guint i;
 
@@ -116,10 +117,97 @@ static void multiload_save_configuration(Plugin * p, FILE * fp)
       g_free (key);
     }
 }
+#endif
+
+static void multiload_apply_defaults(Plugin * p)
+{
+    PLUGIN_PRIV_TYPE * multiload = PRIV(p);
+    MultiloadPlugin * ma = &multiload->ma;
+
+    guint i;
+
+    /* Initial settings */
+    ma->speed = DEFAULT_SPEED;
+    ma->size = DEFAULT_SIZE;
+    for ( i = 0; i < NGRAPHS; i++ )
+    {
+        ma->graph_config[i].visible = FALSE;
+        multiload_colorconfig_default(ma, i);
+    }
+    ma->graph_config[0].visible = TRUE;
+}
+
+static void multiload_read_configuration(Plugin * p)
+{
+    PLUGIN_PRIV_TYPE * multiload = PRIV(p);
+    MultiloadPlugin * ma = &multiload->ma;
+    json_t * json = plugin_inner_json(p);
+
+    ma->speed = su_json_dot_get_int(json, "speed", ma->speed);
+    ma->size = su_json_dot_get_int(json, "size", ma->size);
+
+    int visible_count = 0;
+    guint i;
+    for (i = 0; i < NGRAPHS; i++ )
+    {
+        /* Visibility */
+        {
+            gchar * key = g_strdup_printf("%s_visible", graph_types[i].name);
+            ma->graph_config[i].visible = su_json_dot_get_bool(json, key, ma->graph_config[i].visible);
+            if (ma->graph_config[i].visible)
+                visible_count++;
+            g_free(key);
+        }
+
+        /* Colors */
+        {
+              gchar * key = g_strdup_printf("%s_colors", graph_types[i].name);
+              gchar * value = NULL; su_json_dot_get_string(json, key, NULL, &value);
+              if (value)
+              {
+                  multiload_colorconfig_unstringify(ma, i, value);
+                  g_free(value);
+              }
+              g_free(key);
+        }
+    }
+
+}
+
+static void multiload_save_configuration(Plugin * p)
+{
+    PLUGIN_PRIV_TYPE * multiload = PRIV(p);
+    MultiloadPlugin * ma = &multiload->ma;
+    json_t * json = plugin_inner_json(p);
+
+    su_json_dot_set_int(json, "speed", ma->speed);
+    su_json_dot_set_int(json, "size", ma->size);
+
+    guint i;
+    for (i = 0; i < NGRAPHS; i++ )
+    {
+        /* Visibility */
+        {
+            gchar * key = g_strdup_printf("%s_visible", graph_types[i].name);
+            su_json_dot_set_bool(json, key, ma->graph_config[i].visible);
+            g_free(key);
+        }
+
+        /* Colors */
+        {
+              gchar * key = g_strdup_printf("%s_colors", graph_types[i].name);
+              char value[8 * MAX_COLORS];
+              multiload_colorconfig_stringify(ma, i, value);
+              su_json_dot_set_string(json, key, value);
+              g_free(key);
+        }
+    }
+
+}
 
 static void multiload_panel_configuration_changed(Plugin *p)
 {
-  MultiloadLxpanelPlugin *multiload = PRIV(p);
+  PLUGIN_PRIV_TYPE * multiload = PRIV(p);
 
   /* Determine orientation and size */
   GtkOrientation orientation =
@@ -153,10 +241,10 @@ multiload_press_event(GtkWidget *pwid, GdkEventButton *event, Plugin *p)
 }
 
 static int
-multiload_constructor(Plugin *p, char **fp)
+multiload_constructor(Plugin *p)
 {
   /* allocate our private structure instance */
-  MultiloadLxpanelPlugin *multiload = g_new0(MultiloadLxpanelPlugin, 1);
+  PLUGIN_PRIV_TYPE * multiload = g_new0(PLUGIN_PRIV_TYPE, 1);
   plugin_set_priv(p, multiload);
 
   /* Initialize multiload */
@@ -164,7 +252,8 @@ multiload_constructor(Plugin *p, char **fp)
   multiload->dlg = NULL;
 
   /* read the user settings */
-  multiload_read (fp, &multiload->ma);
+  multiload_apply_defaults(p);
+  multiload_read_configuration (p);
 
   /* create a container widget */
   plugin_set_widget(p, gtk_event_box_new());
@@ -186,7 +275,7 @@ static void
 multiload_destructor(Plugin * p)
 {
   /* find our private structure instance */
-  MultiloadLxpanelPlugin *multiload = PRIV(p);
+  PLUGIN_PRIV_TYPE * multiload = PRIV(p);
 
   /* Destroy dialog */
   if ( multiload->dlg )
@@ -200,9 +289,9 @@ multiload_destructor(Plugin * p)
 }
 
 static void
-multiload_configure_response (GtkWidget              *dialog,
+multiload_configure_response (GtkWidget             * dialog,
                               gint                    response,
-                              MultiloadLxpanelPlugin *multiload)
+                              PLUGIN_PRIV_TYPE      * multiload)
 {
   gboolean result;
 
@@ -242,7 +331,7 @@ multiload_configure_get_plugin (GtkWidget *widget)
 static void multiload_configure(Plugin * p, GtkWindow * parent)
 {
   GtkWidget *dialog;
-  MultiloadLxpanelPlugin *multiload = PRIV(p);
+  PLUGIN_PRIV_TYPE * multiload = PRIV(p);
   if ( multiload->dlg != NULL )
     {
       gtk_widget_show_all (multiload->dlg);
@@ -301,6 +390,7 @@ PluginClass multiload_plugin_class = {
    version: PACKAGE_VERSION,
    description : N_("A system load monitor that graphs processor, memory, "
                    "and swap space use, plus network and disk activity."),
+   category: PLUGIN_CATEGORY_HW_INDICATOR,
 
    // we can have many running at the same time
    one_per_system : FALSE,

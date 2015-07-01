@@ -2,7 +2,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/multiload \
-	-DG_LOG_DOMAIN=\"lxpanelx-multiload-plugin\" \
+	-DG_LOG_DOMAIN=\"waterline-multiload-plugin\" \
 	-DPACKAGE_LOCALE_DIR=\"$(localedir)\" \
 	$(PLATFORM_CPPFLAGS)
 
@@ -13,18 +13,18 @@ plugin_LTLIBRARIES = \
 	multiload.la
 
 plugindir = \
-	$(libdir)/lxpanelx/plugins
+	$(libdir)/waterline/plugins
 
 multiload_la_SOURCES = \
 	../about-data.h \
-	lxpanelx-multiload-plugin.c
+	waterline-multiload-plugin.c
 # xfce4-multiload-plugin.h
 # xfce4-multiload-dialogs.c xfce4-multiload-dialogs.h
 # xfce4-multiload-settings.c xfce4-multiload-settings.h
 
 multiload_la_CFLAGS = \
 	$(GTK_CFLAGS) \
-	$(LXPANELX_CFLAGS)
+	$(WATERLINE_CFLAGS)
 
 multiload_la_LDFLAGS = \
        -avoid-version \
@@ -36,7 +36,7 @@ multiload_la_LDFLAGS = \
 
 multiload_la_LIBADD = \
 	$(GTK_LIBS) \
-	$(LXPANELXX_LIBS) \
+	$(WATERLINE_LIBS) \
 	../multiload/multiload-core.la
 
 # vi:set ts=8 sw=8 noet ai nocindent syntax=automake:

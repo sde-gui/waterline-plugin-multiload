@@ -4,14 +4,14 @@ endif
 if HAVE_LXPANEL
 LXPANEL_DIRS = lxpanel
 endif
-if HAVE_LXPANELX
-LXPANELX_DIRS = lxpanelx
+if HAVE_WATERLINE
+WATERLINE_DIRS = waterline
 endif
 SUBDIRS =	\
 	multiload \
 	$(XFCE4_DIRS) \
 	$(LXPANEL_DIRS) \
-	$(LXPANELX_DIRS) \
+	$(WATERLINE_DIRS) \
 	po
 
 distclean-local:

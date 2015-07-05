@@ -401,8 +401,8 @@ PluginClass multiload_plugin_class = {
    // assigning our functions to provided pointers.
    constructor : multiload_constructor,
    destructor  : multiload_destructor,
-   config : multiload_configure,
-   save : multiload_save_configuration,
+   show_properties : multiload_configure,
+   save_configuration : multiload_save_configuration,
    panel_configuration_changed : multiload_panel_configuration_changed
 };
 

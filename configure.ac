@@ -125,7 +125,7 @@ AC_SUBST(LXPANEL_LIBS)
 AC_ARG_WITH([waterline], AS_HELP_STRING([--with-waterline], [Build plugin for waterline]),
             [], [with_waterline=check])
 AS_IF([test "x$with_waterline" != "xno"], [
-    pkg_modules="waterline sde-utils-jansson-1.0"
+    pkg_modules="waterline sde-utils-jansson-0"
     # libmenu-cache is implicitly required; we will fail if it's not present.
     PKG_CHECK_MODULES(WATERLINE, [$pkg_modules],
                       [

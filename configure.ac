@@ -65,7 +65,7 @@ AC_SUBST(LIBGTOP_LIBS)
 
 # Xfce
 AC_ARG_WITH([xfce4], AS_HELP_STRING([--with-xfce4], [Build plugin for xfce4-panel]),
-            [], [with_xfce4=check])
+            [], [with_xfce4=no])
 AS_IF([test "x$with_xfce4" != "xno"], [
     pkg_modules="libxfce4util-1.0 >= 4.6.0
                  libxfce4panel-1.0 >= 4.6.0"
@@ -101,7 +101,7 @@ AC_SUBST(XFCEGUI4_LIBS)
 
 # lxpanel
 AC_ARG_WITH([lxpanel], AS_HELP_STRING([--with-lxpanel], [Build plugin for lxpanel]),
-            [], [with_lxpanel=check])
+            [], [with_lxpanel=no])
 AS_IF([test "x$with_lxpanel" != "xno"], [
     pkg_modules="lxpanel"
     # libmenu-cache is implicitly required; we will fail if it's not present.

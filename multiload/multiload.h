@@ -102,7 +102,7 @@ struct _GraphType {
     colors[MAX_COLORS];
     //const char *default_colors;
 };
-GraphType graph_types[NGRAPHS];
+extern GraphType graph_types[NGRAPHS];
 
 #include "load-graph.h"
 #include "linux-proc.h"

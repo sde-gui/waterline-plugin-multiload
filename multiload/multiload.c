@@ -13,6 +13,8 @@
 #include <glibtop.h>
 #include "multiload.h"
 
+GraphType graph_types[NGRAPHS];
+
 /* update the tooltip to the graph's current "used" percentage */
 void
 multiload_tooltip_update(LoadGraph *g)
